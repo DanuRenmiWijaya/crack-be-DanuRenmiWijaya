@@ -50,6 +50,12 @@ export class PatientsService {
     });
   }
 
+  async findOne(id: string) {
+  return this.prisma.patient.findUnique({ 
+      where: { id } 
+    });
+  }
+
     async update(id: string, dto: Partial<CreatePatientDto>) {
     return this.prisma.patient.update({
       where: { id },

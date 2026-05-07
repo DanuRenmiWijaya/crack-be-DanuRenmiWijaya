@@ -16,6 +16,7 @@ model Patient {
   address   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  records        MedicalRecord[]
 }
 
 model User {
@@ -25,4 +26,20 @@ model User {
   name      String
   role      String   @default("ADMIN") // ADMIN atau DOCTOR
   createdAt DateTime @default(now())
+  doctorRecords  MedicalRecord[]
+}
+
+model MedicalRecord {
+  id             String   @id @default(uuid())
+  patientId      String
+  patient        Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId       String
+  doctor         User     @relation(fields: [doctorId], references: [id])
+  complaint      String   
+  diagnosis      String   
+  physicalExam   String?  
+  treatment      String?  
+  prescription   String?  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

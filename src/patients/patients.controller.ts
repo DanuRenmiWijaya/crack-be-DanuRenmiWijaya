@@ -28,7 +28,14 @@ export class PatientsController {
     return this.patientsService.findAll();
   }
 
-    @Patch(':id')
+  @Get(':id')
+  @ApiOperation({ summary: 'Ambil detail satu pasien berdasarkan ID' })
+  findOne(@Param('id') id: string) {
+    return this.patientsService.findOne(id);
+  }
+
+
+  @Patch(':id')
   update(@Param('id') id: string, @Body() updateDto: Partial<CreatePatientDto>) {
     return this.patientsService.update(id, updateDto);
   }

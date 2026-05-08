@@ -72,4 +72,25 @@ export class PatientsService {
     });
   }
 
+  async getTodayStats() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Hitung pasien baru hari ini
+  const newPatients = await this.prisma.patient.count({
+    where: {
+      createdAt: { gte: today }
+    }
+  });
+
+  // Hitung total rekam medis yang dibuat hari ini
+  const totalVisits = await this.prisma.medicalRecord.count({
+    where: {
+      createdAt: { gte: today }
+    }
+  });
+
+  return { newPatients, totalVisits };
+}
+
 }

@@ -34,6 +34,11 @@ export class PatientsController {
     return this.patientsService.findOne(id);
   }
 
+  @Get('stats/today')
+  @ApiOperation({ summary: 'Ambil statistik harian' })
+  getStats() {
+  return this.patientsService.getTodayStats();
+  }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDto: Partial<CreatePatientDto>) {

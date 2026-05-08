@@ -54,6 +54,12 @@ export class PatientsController {
     return this.patientsService.exportToExcel(res, m, y);
   }
 
+  @Get('stats/monthly')
+  @ApiOperation({ summary: 'Ambil statistik bulanan untuk grafik' })
+  getMonthlyStats() {
+    return this.patientsService.getMonthlyStats();
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDto: Partial<CreatePatientDto>) {
     return this.patientsService.update(id, updateDto);

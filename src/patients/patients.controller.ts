@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Patch, Param, Delete, UseGuards, Res } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, Delete, UseGuards, Res, Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CreatePatientDto } from './dto/create-patient.dto';
@@ -43,8 +43,15 @@ export class PatientsController {
 
   @Get('export/excel')
   @ApiOperation({ summary: 'Export data pasien ke Excel' })
-  async exportExcel(@Res() res: Response) {
-  return this.patientsService.exportToExcel(res);
+  async exportExcel(
+  @Res() res: Response,
+  @Query('month') month?: string,
+  @Query('year') year?: string,
+  ) {
+    const m = month ? parseInt(month, 10) : undefined;
+    const y = year ? parseInt(year, 10) : undefined;
+  
+    return this.patientsService.exportToExcel(res, m, y);
   }
 
   @Patch(':id')

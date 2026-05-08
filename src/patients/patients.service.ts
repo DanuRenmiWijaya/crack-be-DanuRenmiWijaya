@@ -83,8 +83,23 @@ export class PatientsService {
   }
 
   // FUNGSI EXPORT EXCEL (BARU)
-  async exportToExcel(res: Response) {
+   async exportToExcel(res: Response, month?: number, year?: number) {
+    // 1. Buat filter tanggal jika parameter tersedia
+    let dateFilter = {};
+    if (month && year) {
+      const startDate = new Date(year, month - 1, 1); // Awal bulan
+      const endDate = new Date(year, month, 0, 23, 59, 59); // Akhir bulan
+      dateFilter = {
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      };
+    }
+
+    // 2. Ambil data berdasarkan filter
     const patients = await this.prisma.patient.findMany({
+      where: dateFilter,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -109,6 +124,11 @@ export class PatientsService {
     });
 
     worksheet.getRow(1).font = { bold: true };
+
+    // 3. Atur nama file dinamis berdasarkan filter
+    const monthName = month ? new Date(0, month - 1).toLocaleString('id-ID', { month: 'long' }) : 'Semua';
+    const fileName = `Laporan_Pasien_${monthName}_${year || ''}.xlsx`;
+    
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename=Laporan_Pasien.xlsx');
 

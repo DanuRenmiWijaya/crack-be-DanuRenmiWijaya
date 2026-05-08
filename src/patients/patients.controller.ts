@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Get, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, Delete, UseGuards, Res } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { PatientsService } from './patients.service'; // 1. Import Service-nya
+import { Response } from 'express';
 
 @ApiTags('Patients')
 @ApiBearerAuth()
@@ -38,6 +39,12 @@ export class PatientsController {
   @ApiOperation({ summary: 'Ambil statistik harian' })
   getStats() {
   return this.patientsService.getTodayStats();
+  }
+
+  @Get('export/excel')
+  @ApiOperation({ summary: 'Export data pasien ke Excel' })
+  async exportExcel(@Res() res: Response) {
+  return this.patientsService.exportToExcel(res);
   }
 
   @Patch(':id')

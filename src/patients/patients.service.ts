@@ -1,15 +1,15 @@
 import { Injectable, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
+import * as ExcelJS from 'exceljs'; 
+import { Response } from 'express'; 
 
 @Injectable()
 export class PatientsService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreatePatientDto) {
-    // LOG 1: Cek apakah request masuk ke sini
     console.log('1. Mencoba mendaftarkan pasien dengan NIK:', dto.nik);
-
     try {
       const existing = await this.prisma.patient.findUnique({
         where: { nik: dto.nik }
@@ -19,8 +19,6 @@ export class PatientsService {
         console.log('2. NIK sudah ada, proses dibatalkan.');
         throw new ConflictException('Pasien dengan NIK ini sudah terdaftar');
       }
-
-      console.log('3. NIK aman, mulai menyimpan ke database...');
 
       const newPatient = await this.prisma.patient.create({
         data: {
@@ -32,31 +30,28 @@ export class PatientsService {
         },
       });
 
-      // LOG 2: Cek apakah berhasil simpan
       console.log('4. ✅ BERHASIL! Data tersimpan di DB:', newPatient);
       return newPatient;
-
     } catch (error) {
-      // LOG 3: Tangkap error jika gagal
       console.error('❌ GAGAL SIMPAN KE DB:', error);
       throw new InternalServerErrorException('Gagal menyimpan data ke database');
     }
   }
 
   async findAll() {
-    console.log('Memanggil semua data pasien...');
     return this.prisma.patient.findMany({
       orderBy: { createdAt: 'desc' }
     });
   }
 
   async findOne(id: string) {
-  return this.prisma.patient.findUnique({ 
-      where: { id } 
+    return this.prisma.patient.findUnique({ 
+      where: { id },
+      include: { records: true } // Tambahkan ini agar detail pasien bawa rekam medis
     });
   }
 
-    async update(id: string, dto: Partial<CreatePatientDto>) {
+  async update(id: string, dto: Partial<CreatePatientDto>) {
     return this.prisma.patient.update({
       where: { id },
       data: {
@@ -73,24 +68,51 @@ export class PatientsService {
   }
 
   async getTodayStats() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  // Hitung pasien baru hari ini
-  const newPatients = await this.prisma.patient.count({
-    where: {
-      createdAt: { gte: today }
-    }
-  });
+    const newPatients = await this.prisma.patient.count({
+      where: { createdAt: { gte: today } }
+    });
 
-  // Hitung total rekam medis yang dibuat hari ini
-  const totalVisits = await this.prisma.medicalRecord.count({
-    where: {
-      createdAt: { gte: today }
-    }
-  });
+    const totalVisits = await this.prisma.medicalRecord.count({
+      where: { createdAt: { gte: today } }
+    });
 
-  return { newPatients, totalVisits };
-}
+    return { newPatients, totalVisits };
+  }
 
+  // FUNGSI EXPORT EXCEL (BARU)
+  async exportToExcel(res: Response) {
+    const patients = await this.prisma.patient.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Laporan Pasien');
+
+    worksheet.columns = [
+      { header: 'NIK', key: 'nik', width: 20 },
+      { header: 'Nama Lengkap', key: 'name', width: 30 },
+      { header: 'Jenis Kelamin', key: 'gender', width: 15 },
+      { header: 'Tanggal Lahir', key: 'birthDate', width: 20 },
+      { header: 'Alamat', key: 'address', width: 40 },
+      { header: 'Tanggal Daftar', key: 'createdAt', width: 20 },
+    ];
+
+    patients.forEach((p) => {
+      worksheet.addRow({
+        ...p,
+        birthDate: p.birthDate.toLocaleDateString('id-ID'),
+        createdAt: p.createdAt.toLocaleDateString('id-ID'),
+      });
+    });
+
+    worksheet.getRow(1).font = { bold: true };
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=Laporan_Pasien.xlsx');
+
+    await workbook.xlsx.write(res);
+    res.end();
+  }
 }

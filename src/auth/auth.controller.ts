@@ -19,4 +19,10 @@ export class AuthController {
   login(@Body() dto: LoginDto) { 
     return this.authService.login(dto);
   }
+
+  @Post('patient-login')
+  @ApiOperation({ summary: 'Login khusus pasien menggunakan NIK dan Tgl Lahir' })
+  patientLogin(@Body() dto: { nik: string; birthDate: string }) {
+  return this.authService.patientLogin(dto.nik, dto.birthDate);
+  }
 }

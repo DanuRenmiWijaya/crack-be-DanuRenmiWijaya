@@ -39,4 +39,20 @@ export class AuthService {
     
     throw new UnauthorizedException('Username atau password salah');
   }
+
+  async patientLogin(nik: string, birthDate: string) {
+  const patient = await this.prisma.patient.findUnique({
+    where: { nik },
+  });
+
+  // Validasi: NIK ada dan Tanggal Lahir cocok
+  if (patient && new Date(patient.birthDate).toISOString().split('T')[0] === birthDate) {
+    const payload = { sub: patient.id, nik: patient.nik, role: 'PATIENT' };
+    return {
+      access_token: this.jwtService.sign(payload),
+      patient: { id: patient.id, name: patient.name }
+    };
+  }
+  throw new UnauthorizedException('NIK atau Tanggal Lahir salah');
+  }
 }

@@ -21,4 +21,9 @@ export class AppointmentsController {
   getMyAppointments(@Req() req: any) {
     return this.appointmentsService.findByPatient(req.user.sub);
   }
+
+  @Get('track')
+  trackMyStatus(@Req() req: any) {
+  return this.appointmentsService.getTrackingStatus(req.user.sub);
+  }
 }

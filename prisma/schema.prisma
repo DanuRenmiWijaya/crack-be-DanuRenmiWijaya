@@ -48,7 +48,7 @@ model MedicalRecord {
 model Appointment {
   id          String   @id @default(uuid())
   patientId   String
-  patient     Patient  @relation(fields: [patientId], references: [id])
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
   visitDate   DateTime
   department  String   
   status      String   @default("PENDING") 

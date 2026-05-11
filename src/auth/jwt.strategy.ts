@@ -14,7 +14,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // Data yang dikembalikan di sini akan otomatis masuk ke object 'req.user'
-    return { userId: payload.sub, username: payload.username, role: payload.role };
+  // Pastikan payload.sub (ID Pasien/User) dikembalikan
+  return { 
+    sub: payload.sub, 
+    username: payload.username, 
+    role: payload.role 
+  };
   }
 }

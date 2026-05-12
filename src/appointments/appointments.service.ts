@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 
@@ -7,7 +7,6 @@ export class AppointmentsService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateAppointmentDto, patientId: string) {
-  // Log untuk debugging di terminal backend
   console.log('Menerima request booking untuk Patient ID:', patientId);
 
   try {
@@ -22,7 +21,7 @@ export class AppointmentsService {
       data: {
         department: dto.department,
         visitDate: new Date(dto.visitDate),
-        patientId: patientId.trim(), // Pastikan field ini sesuai dengan schema.prisma
+        patientId: patientId.trim(),
         queueNumber: lastAppointment + 1,
         status: 'PENDING',
       },
@@ -33,8 +32,6 @@ export class AppointmentsService {
   }
 }
 
-
-
   async findByPatient(patientId: string) {
     return this.prisma.appointment.findMany({
       where: { patientId },
@@ -44,7 +41,7 @@ export class AppointmentsService {
 
   async findAll() {
   return this.prisma.appointment.findMany({
-    include: { patient: true }, // Sertakan data pasien
+    include: { patient: true }, 
     orderBy: { queueNumber: 'asc' },
   });
   }
@@ -60,7 +57,7 @@ async getTrackingStatus(patientId: string) {
   const currentBooking = await this.prisma.appointment.findFirst({
     where: { 
       patientId,
-      status: { in: ['PENDING', 'CALLING'] }, // Cari booking yang belum selesai
+      status: { in: ['PENDING', 'CALLING'] },
     },
     orderBy: { visitDate: 'desc' }
   });
@@ -72,7 +69,6 @@ const waitingList = await this.prisma.appointment.count({
     department: currentBooking.department,
     visitDate: currentBooking.visitDate,
     status: 'PENDING',
-    // Gunakan tanda seru (!) atau pastikan nilainya bukan null
     queueNumber: { lt: currentBooking.queueNumber } 
   }
 });
@@ -80,7 +76,37 @@ const waitingList = await this.prisma.appointment.count({
   return {
     ...currentBooking,
     peopleAhead: waitingList,
-    estimatedWait: waitingList * 10, // Estimasi 10 menit per orang
+    estimatedWait: waitingList * 10, 
   };
   }
+
+async update(id: string, dto: any, patientId: string) {
+  const appointment = await this.prisma.appointment.findFirst({
+    where: { id, patientId }
+  });
+
+  if (!appointment) throw new UnauthorizedException('Data tidak ditemukan');
+
+  return this.prisma.appointment.update({
+    where: { id },
+    data: {
+      department: dto.department, 
+      visitDate: dto.visitDate ? new Date(dto.visitDate) : undefined,
+    },
+  });
+}
+
+
+async cancel(id: string, patientId: string) {
+  const appointment = await this.prisma.appointment.findFirst({
+    where: { id, patientId }
+  });
+
+  if (!appointment) throw new UnauthorizedException('Akses ditolak');
+
+  return this.prisma.appointment.update({
+    where: { id },
+    data: { status: 'CANCELLED' },
+  });
+}
 }

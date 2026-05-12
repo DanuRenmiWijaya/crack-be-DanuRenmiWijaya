@@ -1,8 +1,8 @@
-import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Req, Patch, Param, Delete } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Appointments')
 @ApiBearerAuth()
@@ -25,5 +25,21 @@ export class AppointmentsController {
   @Get('track')
   trackMyStatus(@Req() req: any) {
   return this.appointmentsService.getTrackingStatus(req.user.sub);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Ubah jadwal kunjungan oleh pasien' })
+  update(
+  @Param('id') id: string, 
+  @Body() dto: CreateAppointmentDto, 
+  @Req() req: any
+  ) {
+  return this.appointmentsService.update(id, dto, req.user.sub);
+  }
+
+
+  @Delete(':id/cancel')
+  cancel(@Param('id') id: string, @Req() req: any) {
+  return this.appointmentsService.cancel(id, req.user.sub);
   }
 }

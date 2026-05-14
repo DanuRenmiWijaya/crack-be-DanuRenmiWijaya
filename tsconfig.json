@@ -19,7 +19,7 @@
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
     "paths": {},
-    "types": ["node"]
+    "types": ["node","jest"]
   },
   "include": ["src/**/*", "prisma/generated/client", "prisma.config.ts"],
   "exclude": ["node_modules"]

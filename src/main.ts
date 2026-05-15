@@ -9,17 +9,18 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
 
+  // PERBAIKAN 1: Buka origin agar bisa diakses domain produksi (Netlify) maupun lokal
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: true, // Mengizinkan semua domain, atau Anda bisa pakai array: ['http://localhost:3000', 'https://netlify.app']
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,            // Membuang properti yang tidak ada di DTO
-      forbidNonWhitelisted: true, // Error jika mengirim properti yang tidak terdaftar
-      transform: true,            // Auto transform tipe data (misal: string ke number)
+      whitelist: true,            
+      forbidNonWhitelisted: true, 
+      transform: true,            
     }),
   );
 
@@ -27,15 +28,16 @@ async function bootstrap() {
     .setTitle('SIMRS / EMR API')
     .setDescription('Dokumentasi API untuk Sistem Informasi Manajemen Rumah Sakit')
     .setVersion('1.0')
-    .addBearerAuth() // Tambahkan support JWT di Swagger
+    .addBearerAuth() 
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document); // Akses di: http://localhost:5000/api/docs
+  SwaggerModule.setup('api/docs', app, document); 
 
-  // Jalankan di port 5000 (agar tidak bentrok dengan Next.js port 3000)
   const port = process.env.PORT || 5000;
-  await app.listen(port);
+  
+  // PERBAIKAN 2: Tambahkan '0.0.0.0' agar server Render bisa mendengarkan interface jaringan publik
+  await app.listen(port, '0.0.0.0');
   
   console.log(`🚀 Backend SIMRS berjalan di: http://localhost:${port}/api/v1`);
   console.log(`📄 Dokumentasi Swagger: http://localhost:${port}/api/docs`);

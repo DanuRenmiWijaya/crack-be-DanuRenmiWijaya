@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
     "scripts": {
+    "pnpm:devPreinstall": "pnpm approve-builds",
     "prebuild": "echo 'Generating Prisma Client...'",
     "build": "prisma generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

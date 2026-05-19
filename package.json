@@ -5,9 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "scripts": {
-     "prebuild": "npx prisma generate",
-    "build": "nest build",
+    "scripts": {
+    "prebuild": "echo 'Generating Prisma Client...'",
+    "build": "prisma generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "cross-env DATABASE_URL=postgresql://postgres:DannWijaya98@localhost:5432/db_simrs?schema=public nest start --watch",

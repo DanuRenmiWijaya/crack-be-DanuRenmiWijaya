@@ -3,15 +3,20 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module'; 
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express from 'express';
+
+// 1. KUNCI SERVERLESS: Inisialisasi Express instansiasi di luar fungsi utama
+const server = express();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // 2. KUNCI SERVERLESS: Hubungkan NestJS agar menempel ke server Express Adapter
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
   app.setGlobalPrefix('api/v1');
 
-  // PERBAIKAN 1: Buka origin agar bisa diakses domain produksi (Netlify) maupun lokal
   app.enableCors({
-    origin: true, // Mengizinkan semua domain, atau Anda bisa pakai array: ['http://localhost:3000', 'https://netlify.app']
+    origin: true, 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
@@ -34,12 +39,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document); 
 
-  const port = process.env.PORT || 5000;
-  
-  // PERBAIKAN 2: Tambahkan '0.0.0.0' agar server Render bisa mendengarkan interface jaringan publik
-  await app.listen(port, '0.0.0.0');
-  
-  console.log(`🚀 Backend SIMRS berjalan di: http://localhost:${port}/api/v1`);
-  console.log(`📄 Dokumentasi Swagger: http://localhost:${port}/api/docs`);
+  // 3. KUNCI SERVERLESS: Ganti app.listen() dengan app.init() agar serverless tidak crash
+  await app.init();
 }
+
+// Eksekusi inisialisasi awal aplikasi NestJS
 bootstrap();
+
+// 4. KUNCI MUTLAK: Ekspor variabel server express agar dibaca resmi sebagai handler oleh Vercel
+export default server;

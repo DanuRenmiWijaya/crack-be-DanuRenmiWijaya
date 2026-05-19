@@ -69,14 +69,15 @@
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },
-  "pnpm": {
+    "pnpm": {
     "onlyBuiltDependencies": [
       "@nestjs/core",
       "@prisma/client",
       "@prisma/engines",
       "@scarf/scarf",
       "bcrypt",
-      "prisma"
+      "prisma",
+      "unrs-resolver"
     ]
   },
   "jest": {

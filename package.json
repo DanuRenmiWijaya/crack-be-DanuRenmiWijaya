@@ -50,6 +50,7 @@
     "@types/node": "^22.10.7",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.2",
+    "@vercel/node": "^5.8.2",
     "cross-env": "^10.1.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
@@ -79,13 +80,13 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-  "**/*.(t|j)s",
-  "!main.(t|j)s",
-  "!**/*.module.(t|j)s",
-  "!**/*.entity.(t|j)s",
-  "!**/*update-*.dto.(t|j)s",
-  "!auth/jwt.strategy.(t|j)s"
-  ],
+      "**/*.(t|j)s",
+      "!main.(t|j)s",
+      "!**/*.module.(t|j)s",
+      "!**/*.entity.(t|j)s",
+      "!**/*update-*.dto.(t|j)s",
+      "!auth/jwt.strategy.(t|j)s"
+    ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   }

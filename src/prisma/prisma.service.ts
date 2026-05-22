@@ -1,11 +1,20 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/core';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  constructor() {
+    super({
+      datasources: {
+        db: {
+          url: "postgresql://postgres.vbpjijegrcphtvejtmbi:DannWijaya98@://supabase.com",
+        },
+      },
+    });
+  }
+
   async onModuleInit() {
     await this.$connect();
-    console.log('✅ DATABASE SIMRS CONNECTED (STABLE VERSION)');
   }
 
   async onModuleDestroy() {

@@ -32,7 +32,7 @@ src/
 ```
 
 ## Beckend Testing
-![Testing Beckend](./assets/Screenshot (263).png)
+![Testing Backend](./assets/screenshot-testing.png)
 
 ###
 Deployment :`https://crack-be-danu-renmi-wijaya.vercel.app/v1`

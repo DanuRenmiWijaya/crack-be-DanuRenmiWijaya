@@ -31,9 +31,12 @@ src/
 └── app.module.ts         # Modul utama konfigurasi proyek
 ```
 
-## ⚙️ Cara Menjalankan Proyek di Lokal
+## Beckend Testing
+![Testing Beckend](./assets/Screenshot (263).png)
 
+###
+Deployment :`https://crack-be-danu-renmi-wijaya.vercel.app/v1`
 
-### Jalankan Server Development
+### Jalankan Server Lokal
 API akan berjalan secara lokal di: `http://localhost:5000/api/v1`  
 Dokumentasi Swagger UI dapat diakses di: `http://localhost:5000/api/docs`
